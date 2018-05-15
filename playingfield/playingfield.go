@@ -1,5 +1,9 @@
 package playingfield
 
+import(
+	"strings"
+)
+
 type PlayingField interface {
 	Update()
 	//CurrentState() FieldState
@@ -31,45 +35,31 @@ func (field *PlayingFieldImpl) Update() {
 
 		switch {
 		// cell is living but has too less or too much living neighbours to survive
-		case field.current[position.X][position.Y] && (living < 2 || living > 3):
+		case field.current[position.Y][position.X] && (living < 2 || living > 3):
 			invert.add(position)
 			updateNext.union(&neighbours)
 			// cell is dead but has exactly three living neighbours and will live again
-		case !field.current[position.X][position.Y] && living == 3:
+		case !field.current[position.Y][position.X] && living == 3:
 			invert.add(position)
 			updateNext.union(&neighbours)
 		}
 	}
 
 	for position := range invert {
-		field.current[position.X][position.Y] = !field.current[position.X][position.Y]
+		field.current[position.Y][position.X] = !field.current[position.Y][position.X]
 	}
 
 	field.nextToUpdate = updateNext
 }
 
-func (field *PlayingFieldImpl) Initialize(columns, rows int, positions PositionSet) {
-	field.current = make([][]bool, columns)
-
-	for i := range field.current {
-		field.current[i] = make([]bool, rows)
-	}
-
-	for position := range positions {
-		field.current[position.X][position.Y] = true
-	}
-
-	field.nextToUpdate = positions
-}
-
 func (field *PlayingFieldImpl) invert(position Position) {
-	field.current[position.X][position.Y] = !field.current[position.X][position.Y]
+	field.current[position.Y][position.X] = !field.current[position.Y][position.X]
 }
 
 func (field *PlayingFieldImpl) living(positions *PositionSet) int {
 	livingCells := 0
 	for position := range *positions {
-		if(field.current[position.X][position.Y]) {
+		if(field.current[position.Y][position.X]) {
 			livingCells++
 		}
 	}
@@ -91,8 +81,44 @@ func (field *PlayingFieldImpl) neighboursOf(position Position) PositionSet {
 	}
 }
 
+// utility function to ease the access of neighbours from positions at the borders of the field
 func (field *PlayingFieldImpl) remapPosition(position Position) Position {
 	return Position{ (position.X + field.columns) % field.columns, (position.Y + field.rows) % field.rows }
+}
+
+func (field *PlayingFieldImpl) String() string {
+	borderPrinter := func(builder *strings.Builder) {
+		borderElement := "**"
+		for i := 0; i < field.columns + 1; i++ {
+			builder.WriteString(borderElement)
+		}
+		builder.WriteString("\n")
+	}
+
+	living := "O "
+	dead := "- "
+	builder := strings.Builder{}
+
+	// print the upper boarder
+	borderPrinter(&builder)
+	// prinnt all rows
+	// (0,0) is in the bottom left, (n, m) is in the top right
+	for rowIndex := field.rows -1; rowIndex >= 0; rowIndex-- {
+		builder.WriteString("*")
+
+		for _, cellState := range field.current[rowIndex] {
+			if cellState {
+				builder.WriteString(living)
+			} else {
+				builder.WriteString(dead)
+			}
+		}
+		builder.WriteString("*\n")
+	}
+	// print the lower boarder
+	borderPrinter(&builder)
+
+	return builder.String()
 }
 
 func New(columns, rows int, initialPositions ...Position) PlayingField {
@@ -100,19 +126,19 @@ func New(columns, rows int, initialPositions ...Position) PlayingField {
 	field := PlayingFieldImpl{
 		columns: columns,
 		rows: rows,
-		current: make([][]bool, columns),
+		current: make([][]bool, rows),
 	}
 
-	// add rows
+	// add rows, each with length 'columns'
 	for i := range field.current {
-		field.current[i] = make([]bool, rows)
+		field.current[i] = make([]bool, columns)
 	}
 
 	// set the cells at the given positions, them + their neighbours have to be updated in the next iteration
 	positions := PositionSet{}
 	adjacent := PositionSet{}
 	for _, position := range initialPositions {
-		field.current[position.X][position.Y] = true
+		field.current[position.Y][position.X] = true
 
 		positions.add(position)
 		neighbours := field.neighboursOf(position)
@@ -124,34 +150,6 @@ func New(columns, rows int, initialPositions ...Position) PlayingField {
 	field.nextToUpdate = positions
 
 	return &field
-}
-
-type Position struct {
-	X int
-	Y int
-}
-
-type PositionSet map[Position]bool
-
-func (positions *PositionSet) add(position Position) bool {
-	if _, alreadyIn := (*positions)[position]; alreadyIn {
-		return true
-	} else {
-		(*positions)[position] = true
-		return false
-	}
-}
-
-func (positions *PositionSet) addAll(positionsToAdd ...Position) {
-	for _, position := range positionsToAdd {
-		positions.add(position)
-	}
-}
-
-func (positions *PositionSet) union(newPositions *PositionSet) {
-	for position := range *newPositions {
-		positions.add(position)
-	}
 }
 
 type FieldState [][]bool
