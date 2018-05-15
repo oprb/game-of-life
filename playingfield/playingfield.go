@@ -88,8 +88,8 @@ func (field *PlayingFieldImpl) remapPosition(position Position) Position {
 
 func (field *PlayingFieldImpl) String() string {
 	borderPrinter := func(builder *strings.Builder) {
-		borderElement := "**"
-		for i := 0; i < field.columns + 1; i++ {
+		borderElement := "*"
+		for i := 0; i < field.columns * 2 + 3; i++ {
 			builder.WriteString(borderElement)
 		}
 		builder.WriteString("\n")
@@ -104,7 +104,7 @@ func (field *PlayingFieldImpl) String() string {
 	// prinnt all rows
 	// (0,0) is in the bottom left, (n, m) is in the top right
 	for rowIndex := field.rows -1; rowIndex >= 0; rowIndex-- {
-		builder.WriteString("*")
+		builder.WriteString("* ")
 
 		for _, cellState := range field.current[rowIndex] {
 			if cellState {
