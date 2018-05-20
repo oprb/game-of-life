@@ -1,3 +1,4 @@
 # Game of Life
 
-I want to develop Conan's famous Game of Life with Go. Primarily to learn to code in Go.
+It's an implementation of the famous *Game of Life*, created by *John Conway*, an english
+mathematicion, in 1970. It is written in *golang*.
