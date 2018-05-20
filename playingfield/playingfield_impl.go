@@ -42,10 +42,6 @@ func (field *PlayingFieldImpl) Update() {
 	field.nextToUpdate = updateNext
 }
 
-func (field *PlayingFieldImpl) invert(position Position) {
-	field.current[position.Y][position.X] = !field.current[position.Y][position.X]
-}
-
 func (field *PlayingFieldImpl) living(positions *PositionSet) int {
 	livingCells := 0
 	for position := range *positions {
