@@ -2,14 +2,18 @@ package playingfield
 
 import "fmt"
 
+// PlayingField provides all necessary methods to play with an Game of Life playing field.
 type PlayingField interface {
+	// Update updates the state of the PlayingFIeld by applying the rules to all cells.
 	Update()
 	fmt.Stringer
-	//CurrentState() FieldState
+	// CurrentState returns a view on the FieldState of the PlayingField. Changes to it may be reflected on the
+	// FieldState of the PlayingField!
+	CurrentState() *FieldState
 	//FieldStateAt(time int) FieldState
-	//Initialize(state FieldState)
 }
 
+// New provides a new PlayingField with  the cells  at the given Positions initially set to life.
 func New(columns, rows int, initialPositions ...Position) PlayingField {
 	// initialize a playing field
 	field := PlayingFieldImpl{
@@ -41,4 +45,6 @@ func New(columns, rows int, initialPositions ...Position) PlayingField {
 	return &field
 }
 
+// FieldState represents the condition of all cells from a given PlayingField, where 'true' means the cell at the
+// associated position is alive and 'false' indicates a dead cell.
 type FieldState [][]bool

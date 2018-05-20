@@ -2,28 +2,38 @@ package playingfield
 
 import "strings"
 
+// PlayingFieldImpl provides a simple implementation of the PlayingField.
+// It will be efficient, if sparsely occupied, but generates a bit overhead, if crowded by many living cells.
 type PlayingFieldImpl struct {
+	// total of columns
 	columns int
+	// total of rows
 	rows int
+	// number of iteration
 	iteration int
+	// current field state
 	current FieldState
 	previous []FieldState
+	// positions that have to be regarded in the next iteration nd are likely to change their states
 	nextToUpdate PositionSet
 }
 
+// CurrentState returns a view on the FieldState of the PlayingFieldImpl. Changes to it will be reflected on the
+// FieldState of the PlayingFieldImpl!
 func (field *PlayingFieldImpl) CurrentState() *FieldState {
 	return &field.current
 }
 
+// Update updates the state of the PlayingFIeldImpl by applying the rules..
 func (field *PlayingFieldImpl) Update() {
 	var neighbours PositionSet
 	// position that have to be inverted, i. e. cells that will live again or die
 	invert := PositionSet{}
-	updateNext := PositionSet{}
+	positions := PositionSet{}
 
 	for position := range field.nextToUpdate {
 		neighbours = field.neighboursOf(position)
-		living := field.living(&neighbours)
+		living := field.cellsAlive(&neighbours)
 		// cell is living but has too less or too much living neighbours to survive
 		diesNext := field.current[position.Y][position.X] && (living < 2 || living > 3)
 		// cell is dead but has exactly three living neighbours and will live next iteration
@@ -31,18 +41,20 @@ func (field *PlayingFieldImpl) Update() {
 
 		if(diesNext || willLiveNext) {
 			invert.add(position)
-			updateNext.union(&neighbours)
+			positions.union(&neighbours)
 		}
 	}
 
+	// invert the state all given positions
 	for position := range invert {
 		field.current[position.Y][position.X] = !field.current[position.Y][position.X]
 	}
 
-	field.nextToUpdate = updateNext
+	field.nextToUpdate = positions
 }
 
-func (field *PlayingFieldImpl) living(positions *PositionSet) int {
+// cellsAlive provides the count of living cells among the given Positions.
+func (field *PlayingFieldImpl) cellsAlive(positions *PositionSet) int {
 	livingCells := 0
 	for position := range *positions {
 		if(field.current[position.Y][position.X]) {
@@ -53,6 +65,7 @@ func (field *PlayingFieldImpl) living(positions *PositionSet) int {
 	return livingCells
 }
 
+// neighboursOf provides the neighbours for the cell at the given Position
 func (field *PlayingFieldImpl) neighboursOf(position Position) PositionSet {
 	// return the neighbours clockwise beginning at the top
 	return PositionSet{
@@ -67,11 +80,14 @@ func (field *PlayingFieldImpl) neighboursOf(position Position) PositionSet {
 	}
 }
 
-// utility function to ease the access of neighbours from positions at the borders of the field
+// remapPosition remaps a given Position to the "associated" Position on the PlayingFieldImpl, it is called on.
+// It serves as an helper function to ease the access to adjacent Positions of a Position at the borders of the
+// PlayingFieldImpl.
 func (field *PlayingFieldImpl) remapPosition(position Position) Position {
 	return Position{ (position.X + field.columns) % field.columns, (position.Y + field.rows) % field.rows }
 }
 
+// String provides a string representation of the PlayingFieldImpl.
 func (field *PlayingFieldImpl) String() string {
 	borderPrinter := func(builder *strings.Builder) {
 		borderElement := "*"
