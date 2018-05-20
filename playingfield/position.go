@@ -15,12 +15,12 @@ type PositionSet map[Position]bool
 type SortByPosition []Position
 
 func (positions *PositionSet) add(position Position) bool {
-	if _, alreadyIn := (*positions)[position]; alreadyIn {
-		return true
-	} else {
+	if _, alreadyIn := (*positions)[position]; !alreadyIn {
 		(*positions)[position] = true
 		return false
 	}
+
+	return true
 }
 
 func (positions *PositionSet) addAll(positionsToAdd ...Position) {
@@ -39,18 +39,9 @@ func (position Position) String() string {
 	return fmt.Sprintf("[X: %v, Y: %v]", position.X, position.Y)
 }
 
-
-func (positions *SortByPosition) Len() int {
-	return len([]Position(*positions))
-}
-
-func (positions *SortByPosition) Swap(i, j int) {
-
-}
-
 func (positionsToSort *SortByPosition) Less(i, j int) bool {
 	if ((*positionsToSort)[i].X < (*positionsToSort)[j].X ||
-		(*positionsToSort)[i].X == (*positionsToSort)[j] .X &&  (*positionsToSort)[i].Y < (*positionsToSort)[j] .Y) {
+		(*positionsToSort)[i].X == (*positionsToSort)[j] .X && (*positionsToSort)[i].Y < (*positionsToSort)[j] .Y) {
 		return true
 	}
 
@@ -61,7 +52,7 @@ func (positions *PositionSet) asIterable() []Position {
 	iterable := make([]Position, len(*positions))
 
 	for position := range *positions {
-		iterable = append(iterable, Position{position.X, position.Y})
+		iterable = append(iterable, position)
 	}
 
 	return iterable
