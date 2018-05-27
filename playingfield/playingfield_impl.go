@@ -41,7 +41,7 @@ func (field *PlayingFieldImpl) Update() {
 
 		if(diesNext || willLiveNext) {
 			invert.add(position)
-			positions.union(&neighbours)
+			positions.union(neighbours)
 		}
 	}
 

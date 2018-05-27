@@ -44,10 +44,10 @@ func New(columns, rows int, initialPositions ...Position) (PlayingField, error) 
 
 		positions.add(position)
 		neighbours := field.neighboursOf(position)
-		adjacent.union(&neighbours)
+		adjacent.union(neighbours)
 	}
 
-	positions.union(&adjacent)
+	positions.union(adjacent)
 
 	field.nextToUpdate = positions
 

@@ -18,9 +18,9 @@ type PositionSet map[Position]bool
 type SortByPosition []Position
 
 // add can be used to add a Position to a PositionSet.
-func (positions *PositionSet) add(position Position) bool {
-	if _, alreadyIn := (*positions)[position]; !alreadyIn {
-		(*positions)[position] = true
+func (positions PositionSet) add(position Position) bool {
+	if _, alreadyIn := positions[position]; !alreadyIn {
+		positions[position] = true
 		return true
 	}
 
@@ -28,15 +28,15 @@ func (positions *PositionSet) add(position Position) bool {
 }
 
 // addAll can be used to add  several Positions to a PositionSet.
-func (positions *PositionSet) addAll(positionsToAdd ...Position) {
+func (positions PositionSet) addAll(positionsToAdd ...Position) {
 	for _, position := range positionsToAdd {
 		positions.add(position)
 	}
 }
 
 // union can be used to merge a PositionSet into the PositionSet, union is called on.
-func (positions *PositionSet) union(newPositions *PositionSet) {
-	for position := range *newPositions {
+func (positions PositionSet) union(newPositions PositionSet) {
+	for position := range newPositions {
 		positions.add(position)
 	}
 }
@@ -57,10 +57,10 @@ func (positionsToSort *SortByPosition) Less(i, j int) bool {
 }
 
 // asIterable provides all positions from a PositionSet as an iterable data structure.
-func (positions *PositionSet) asIterable() []Position {
-	iterable := make([]Position, len(*positions))
+func (positions PositionSet) asIterable() []Position {
+	iterable := make([]Position, len(positions))
 
-	for position := range *positions {
+	for position := range positions {
 		iterable = append(iterable, position)
 	}
 
@@ -68,12 +68,12 @@ func (positions *PositionSet) asIterable() []Position {
 }
 
 // String provides a string representation of a PositionSet.
-func (positions *PositionSet) String() string {
+func (positions PositionSet) String() string {
 	builder := strings.Builder{}
 	//positionsToSort := positions.asIterable()
 	//sort.Sort(SortByPosition(positionsToSort)
 	builder.WriteString("{\n")
-	for position := range *positions {
+	for position := range positions {
 		builder.WriteString(fmt.Sprintf(" %v,\n", position))
 	}
 	builder.WriteString("}")
