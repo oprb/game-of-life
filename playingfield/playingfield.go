@@ -13,7 +13,7 @@ type PlayingField interface {
 	fmt.Stringer
 	// CurrentState returns a view on the FieldState of the PlayingField. Changes to it may be reflected on the
 	// FieldState of the PlayingField!
-	CurrentState() *FieldState
+	CurrentState() FieldState
 	//FieldStateAt(time int) FieldState
 }
 

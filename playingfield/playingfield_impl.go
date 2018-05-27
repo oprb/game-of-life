@@ -20,8 +20,8 @@ type PlayingFieldImpl struct {
 
 // CurrentState returns a view on the FieldState of the PlayingFieldImpl. Changes to it will be reflected on the
 // FieldState of the PlayingFieldImpl!
-func (field *PlayingFieldImpl) CurrentState() *FieldState {
-	return &field.current
+func (field *PlayingFieldImpl) CurrentState() FieldState {
+	return field.current
 }
 
 // Update updates the state of the PlayingFIeldImpl by applying the rules..
