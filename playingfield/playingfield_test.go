@@ -3,20 +3,21 @@ package playingfield
 import (
 	"testing"
 	"errors"
+	"reflect"
 )
 
 func TestPlayingFieldImpl_CurrentState_withoutInitialPositionsSet(t *testing.T) {
 	field, _ := newPlayingFieldImpl(5,5)
 
 	given := field.CurrentState()
-	expected := &FieldState{
+	expected := FieldState{
 		[]bool{false, false, false, false},
 		[]bool{false, false, false, false},
 		[]bool{false, false, false, false},
 		[]bool{false, false, false, false},
 		[]bool{false, false, false, false},}
 
-	if given != expected {
+	if reflect.DeepEqual(given, expected) {
 		t.Fail()
 	}
 }
@@ -32,7 +33,7 @@ func TestPlayingFieldImpl_CurrentState_withInitialPositionsSet(t *testing.T) {
 		[]bool{false, true, false, false},
 		[]bool{false, false, false, false},}
 
-	if given != expected {
+	if reflect.DeepEqual(given, expected) {
 		t.Fail()
 	}
 }
@@ -48,7 +49,7 @@ func TestPlayingFieldImpl_Update_withTooSmallInitialPositionsSetToCreateNewLife(
 		[]bool{false, false, false, false},
 		[]bool{false, false, false, false},}
 
-	if given != expected {
+	if reflect.DeepEqual(given, expected) {
 		t.Fail()
 	}
 }
@@ -66,7 +67,7 @@ func TestPlayingFieldImpl_Update_withInitialPositionsSet(t *testing.T) {
 		[]bool{true, false, false, false},}
 
 	// 	test for the expected initial setup
-	if given != expected {
+	if reflect.DeepEqual(given, expected) {
 		t.Fail()
 	}
 
