@@ -89,6 +89,11 @@ func (field *PlayingFieldImpl) remapPosition(position Position) Position {
 
 // String provides a string representation of the PlayingFieldImpl.
 func (field *PlayingFieldImpl) String() string {
+	const (
+		living = "O "
+		dead = "- "
+	)
+
 	borderPrinter := func(builder *strings.Builder) {
 		borderElement := "*"
 		for i := 0; i < field.columns * 2 + 3; i++ {
@@ -97,13 +102,11 @@ func (field *PlayingFieldImpl) String() string {
 		builder.WriteString("\n")
 	}
 
-	living := "O "
-	dead := "- "
 	builder := strings.Builder{}
 
 	// print the upper boarder
 	borderPrinter(&builder)
-	// prinnt all rows
+	// print all rows
 	// (0,0) is in the bottom left, (n, m) is in the top right
 	for rowIndex := field.rows -1; rowIndex >= 0; rowIndex-- {
 		builder.WriteString("* ")
