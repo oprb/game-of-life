@@ -1,6 +1,10 @@
 package playingfield
 
-import "fmt"
+import (
+	"fmt"
+	"errors"
+	"strings"
+)
 
 // PlayingField provides all necessary methods to play with an Game of Life playing field.
 type PlayingField interface {
@@ -14,7 +18,12 @@ type PlayingField interface {
 }
 
 // New provides a new PlayingField with  the cells  at the given Positions initially set to life.
-func New(columns, rows int, initialPositions ...Position) PlayingField {
+// Duplicated positions will be ignored.
+func New(columns, rows int, initialPositions ...Position) (PlayingField, error) {
+	if err := checkForInvalidPositions(columns, rows, initialPositions...); err != nil {
+		return nil, err
+	}
+
 	// initialize a playing field
 	field := PlayingFieldImpl{
 		columns: columns,
@@ -42,7 +51,35 @@ func New(columns, rows int, initialPositions ...Position) PlayingField {
 
 	field.nextToUpdate = positions
 
-	return &field
+	return &field, nil
+}
+
+// checkForInvalidPositions checks for coordinates among the given Positions, that does not fit onto a PlayingField
+// of size 'columns' X 'rows' and returns an error listing the invalid positions, in case such were found.
+func checkForInvalidPositions(columns, rows int, positions ...Position) error {
+	nonValidPositions := []Position{}
+	// collect the invalid positions
+	for _, position := range positions {
+		if position.X < 0 || position.Y < 0 || position.X >= columns || position.Y >= rows {
+			nonValidPositions = append(nonValidPositions, position)
+		}
+	}
+
+	// use a string builder to create the listing of invalid positions and return an error
+	if length := len(nonValidPositions); length != 0 {
+		builder := strings.Builder{}
+		builder.WriteString("playingField.New: Position/s with invalid coordinate/s were given: ")
+		if length > 1 {
+			for i := 0; i < length -1; i++ {
+				builder.WriteString(fmt.Sprintf("%v, ", nonValidPositions[i]))
+			}
+		}
+		builder.WriteString(fmt.Sprintf("%v", nonValidPositions[length - 1]))
+
+		return errors.New(builder.String())
+	}
+
+	return nil
 }
 
 // FieldState represents the condition of all cells from a given PlayingField, where 'true' means the cell at the
