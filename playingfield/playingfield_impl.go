@@ -104,7 +104,7 @@ func (field *PlayingFieldImpl) String() string {
 
 	builder := strings.Builder{}
 
-	// print the upper boarder
+	// print the upper border
 	borderPrinter(&builder)
 	// print all rows
 	// (0,0) is in the bottom left, (n, m) is in the top right
