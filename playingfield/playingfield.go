@@ -70,7 +70,7 @@ func checkForInvalidPositions(columns, rows int, positions ...Position) error {
 		builder := strings.Builder{}
 		builder.WriteString("playingField.New: Position/s with invalid coordinate/s were given: ")
 		if length > 1 {
-			for i := 0; i < length -1; i++ {
+			for i := 0; i < length - 1; i++ {
 				builder.WriteString(fmt.Sprintf("%v, ", nonValidPositions[i]))
 			}
 		}
